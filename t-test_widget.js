@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         T-test widget
 // @namespace    https://sc3.omniture.com
-// @version      0.4.4
+// @version      0.4.5
 // @description  Display t-test calculation box
 // @author       Yuliyan
 // @match        https://*.omniture.com/*
@@ -16,12 +16,12 @@
 (function() {
     'use strict';
     // nodelist hack to use map and foreach
-    (function() {
+    (()=> {
         if (typeof NodeList.prototype.forEach === "function") {
             return false;
         } else { NodeList.prototype.forEach = Array.prototype.forEach; }
     })();
-    (function() {
+    (()=> {
         if (typeof NodeList.prototype.map === "function") {
             return false;
         } else { NodeList.prototype.map = Array.prototype.map; }
@@ -29,9 +29,9 @@
     //console.log("T-test widget running...");
     const w = window;
     const doc = document;
-    w.ttestwidget = {
+    w.sswidget = {
         name : "T-test widget",
-        version: '0.4.4',
+        version: '0.4.5',
         styles: {
             bckgrnd_clr: '#f4f7f1',
             main_clr: '#19405b',
@@ -73,10 +73,10 @@
         varianthits : null,
         significanceReport : null,
         logger : (...msg)=>{
-            const consoleStyles = w.ttestwidget.styles.logs.join(';');
+            const consoleStyles = w.sswidget.styles.logs.join(';');
             console.log("%c "+(msg)+" ",consoleStyles);
         },
-        toggleWidget: function(e) {
+        toggleWidget: (e)=> {
             var evtobj = w.event ? event : e;
             if ((evtobj.metaKey || evtobj.ctrlKey) && evtobj.shiftKey && evtobj.keyCode === 89) {
                 if (doc.querySelector("#significance_widget")) {
@@ -84,60 +84,60 @@
                 }
             }
         },
-        setCookie: function(exdays) {
+        setCookie: (exdays)=> {
             var dt = new Date(),
-                cname = w.ttestwidget.cookieName,
+                cname = w.sswidget.cookieName,
                 cerror = doc.getElementById("cerror");
             if (cname && cname.trim().length>1) {
                 dt.setTime(dt.getTime() + (exdays * 24 * 60 * 60 * 1000));
                 var expires = "expires=" + dt.toUTCString();
-                doc.cookie = cname + "=1;path=/;domain=" + widget.domain + ";" + expires;
+                doc.cookie = cname + "=1;path=/;domain=" + w.sswidget.domain + ";" + expires;
                 cerror.innerHTML = "Cookie has been Set!";
                 if (exdays === -1 || exdays === '-1') {
-                    doc.cookie = cname + "=0;path=/;domain=" + widget.domain + ";expires=Thu, 18 Dec 2013 12:00:00 UTC;";
+                    doc.cookie = cname + "=0;path=/;domain=" + w.sswidget.domain + ";expires=Thu, 18 Dec 2013 12:00:00 UTC;";
                     //w.localStorage.clear();
                     //w.sessionStorage.clear();
                 }
             }
         },
-        checkHitsProportion: function(chits,vhits) {
+        checkHitsProportion: (chits,vhits) =>{
           return (Math.abs(chits - vhits)/chits > 0.2)? false : true ;
         },
-        setErrorMessage : function(msg){
-           w.ttestwidget.cerror.innerHTML = msg;
+        setErrorMessage : (msg)=>{
+           w.sswidget.cerror.innerHTML = msg;
         },
-        clearErrorMessage : function(){
-           w.ttestwidget.cerror.innerHTML = "";
+        clearErrorMessage : ()=>{
+           w.sswidget.cerror.innerHTML = "";
         },
-        manageResults : function(){
-            if(w.ttestwidget.checkHitsProportion(w.ttestwidget.controlhits.value,w.ttestwidget.varianthits.value)){
-                w.ttestwidget.clearErrorMessage();
-                w.ttestwidget.cerror.classList.add("hide");
-                w.ttestwidget.calculateSignificance();
+        manageResults : ()=>{
+            if(w.sswidget.checkHitsProportion(w.sswidget.controlhits.value,w.sswidget.varianthits.value)){
+                w.sswidget.clearErrorMessage();
+                w.sswidget.cerror.classList.add("hide");
+                w.sswidget.calculateSignificance();
             }else{
-                w.ttestwidget.cerror.classList.remove("hide");
-                w.ttestwidget.setErrorMessage("Hits difference is higher than 20%.<br />Significance results will be inaccurate!");
-                w.ttestwidget.significanceReport.innerHTML = "";
+                w.sswidget.cerror.classList.remove("hide");
+                w.sswidget.setErrorMessage("Hits difference is higher than 20%.<br />Significance results will be inaccurate!");
+                w.sswidget.significanceReport.innerHTML = "";
             }
         },
-        getTextContent: function(e) {
-            if (!w.ttestwidget.mainWidgetContainer.contains((e.target))) {
-                //w.ttestwidget.logger(e.target.textContent);
-                //w.ttestwidget.logger(e.target.textContent.replace(/[a-zA-Z_ \-:\'\", ]+/ig , ""));
+        getTextContent: (e)=> {
+            if (!w.sswidget.mainWidgetContainer.contains((e.target))) {
+                //w.sswidget.logger(e.target.textContent);
+                //w.sswidget.logger(e.target.textContent.replace(/[a-zA-Z_ \-:\'\", ]+/ig , ""));
                 doc.querySelector(".input.active").value = parseInt(e.target.textContent.replace(/[a-zA-Z_ \-:\'\", ]+/ig, "")) || 0;
             }
-            if (w.ttestwidget.readyToCalculateSignificance() && !w.ttestwidget.mainWidgetContainer.contains((e.target)) ) {
-                w.ttestwidget.manageResults();
-                //w.ttestwidget.logger("Results from getTextContent...");
+            if (w.sswidget.readyToCalculateSignificance() && !w.sswidget.mainWidgetContainer.contains((e.target)) ) {
+                w.sswidget.manageResults();
+                //w.sswidget.logger("Results from getTextContent...");
             }
         },
-        setActiveInput: function(e) {
+        setActiveInput: (e)=> {
             doc.querySelector("#significance_widget .box input.active").classList.remove("active");
             e.target.classList.add("active");
         },
-        _debouncer : function(func, time_ms) {
+        _debouncer : (func, time_ms)=> {
             var t_o;
-            return function () {
+            return  ()=> {
                 var context = this, args = arguments;
                 var runner = ()=> {
                     t_o = null;
@@ -148,7 +148,7 @@
 
             };
         },
-        readyToCalculateSignificance: function() {
+        readyToCalculateSignificance: ()=> {
             let isReady = [];
             document.querySelectorAll("#significance_widget .box input").forEach(
                 (val, ind) => {
@@ -156,7 +156,7 @@
                 });
             return isReady.indexOf(false) !== -1 ? false : true;
         },
-        calculateSignificance: function() {
+        calculateSignificance: ()=> {
             var confidence_stats = [];
             var cr = function(t) {
                 return t.conversions / t.hits;
@@ -313,11 +313,11 @@
                 var c99 = (Math.abs(zScore) > 2.576) && (p_value > 0.995 || p_value < 0.005) && (confidence !== 0 && zScore !== 0) ? "yes" : "no";
                 var c999 = (Math.abs(zScore) > 3.291) && (p_value > 0.998 || p_value < 0.002) && (confidence !== 0 && zScore !== 0) ? "yes" : "no";
                 /*
-         console.log("Control Hits is:", cNumHits);
-         console.log("Control Conversions is:", cNumConver);
-         console.log("Treatment Hits is:", tNumHits);
-         console.log("Treatment Conversions is:", tNumConver);
-         */
+                 console.log("Control Hits is:", cNumHits);
+                 console.log("Control Conversions is:", cNumConver);
+                 console.log("Treatment Hits is:", tNumHits);
+                 console.log("Treatment Conversions is:", tNumConver);
+                 */
                 //console.log("==================\n\tResults are in:");
                 //console.log("\tcConversionRate < tConversionRate:", (cConversionRate < tConversionRate) );
                 console.log("\tWinner is:", cConversionRate < tConversionRate && c95 === "yes" ? "Winner is variant" : cConversionRate > tConversionRate && c95 === "yes" ? "Winner is control" : "");
@@ -329,11 +329,11 @@
                 console.log("\tConfidence is:", confidence);
                 console.log("\tp_value(1-confidence) = ", p_value, "\n==================\n\n\n");
                 /*
-         console.log("80% Confidence: ", (Math.abs(confidence)>=1.282) || (p_value>=0.8 || p_value<=0.2)?"yes":"no");
-         console.log("90% Confidence: ", (Math.abs(confidence)>=1.645) || (p_value>=0.9 || p_value<=0.1)?"yes":"no");
-         console.log("95% Confidence: ", (Math.abs(confidence)>=1.9600) || (p_value>=0.95 || p_value<=0.05)?"yes":"no");
-         console.log("99% Confidence: ", (Math.abs(confidence)>=2.576) || (p_value>=0.99 || p_value<=0.01)?"yes":"no");
-         */
+                 console.log("80% Confidence: ", (Math.abs(confidence)>=1.282) || (p_value>=0.8 || p_value<=0.2)?"yes":"no");
+                 console.log("90% Confidence: ", (Math.abs(confidence)>=1.645) || (p_value>=0.9 || p_value<=0.1)?"yes":"no");
+                 console.log("95% Confidence: ", (Math.abs(confidence)>=1.9600) || (p_value>=0.95 || p_value<=0.05)?"yes":"no");
+                 console.log("99% Confidence: ", (Math.abs(confidence)>=2.576) || (p_value>=0.99 || p_value<=0.01)?"yes":"no");
+                */
                 var winnerIs = cConversionRate < tConversionRate && c95 === "yes" ? "Winner is variant" : cConversionRate > tConversionRate && c95 === "yes" ? "Winner is control" : "";
                 confidence_stats.push(["<p>" + winnerIs + "</p><p>Significance breakdown:<br />[ 80%:" + c80 + " ] [ 90%:" + c90 + " ] [ 95%:" + c95 + " ] [ 99%:" + c99 + " ] [ 99.9%:" + c999 + " ]</p><p>P value: " + p_value.toFixed(4) + "</p><p>Z Score: " + zScore.toFixed(4) + "</p>"]);
             }; // calculateSig
@@ -354,62 +354,61 @@
             var variant = { hits: parseInt(document.getElementById("variant_visits").value), conversions: parseInt(document.getElementById("variant_conversions").value) };
             calculateSig(control, variant);
             doc.querySelector("#significance_report").innerHTML = confidence_stats.join(" ");
-
         },
         setWidgetPosition : (pos,e)=>{
-            let currentClass = w.ttestwidget.cookieName.substring(3);
-            w.ttestwidget.setCookie(-1);
-            w.ttestwidget.cookieName = "ssp"+pos;
-            w.ttestwidget.mainWidgetContainer.classList.remove(currentClass);
-            w.ttestwidget.mainWidgetContainer.classList.add(pos);
-            w.ttestwidget.setCookie(30);
+            let currentClass = w.sswidget.cookieName.substring(3);
+            w.sswidget.setCookie(-1);
+            w.sswidget.cookieName = "ssp"+pos;
+            w.sswidget.mainWidgetContainer.classList.remove(currentClass);
+            w.sswidget.mainWidgetContainer.classList.add(pos);
+            w.sswidget.setCookie(30);
         },
         setDOMVariables : ()=>{
-            w.ttestwidget.cerror = doc.getElementById("cerror");
-            w.ttestwidget.mainWidgetContainer =doc.getElementById("significance_widget");
-            w.ttestwidget.controlhits = doc.getElementById("control_visits");
-            w.ttestwidget.varianthits = doc.getElementById("variant_visits");
-            w.ttestwidget.significanceReport = doc.getElementById("significance_report");
+            w.sswidget.cerror = doc.getElementById("cerror");
+            w.sswidget.mainWidgetContainer =doc.getElementById("significance_widget");
+            w.sswidget.controlhits = doc.getElementById("control_visits");
+            w.sswidget.varianthits = doc.getElementById("variant_visits");
+            w.sswidget.significanceReport = doc.getElementById("significance_report");
         },
         setDOMEventListeners : ()=>{
             doc.getElementById("removewidget").addEventListener("click", function() {
                 doc.querySelectorAll("#significance_widget .box input").forEach(function(val, ind) {
-                    val.removeEventListener("click", w.ttestwidget.setActiveInput);
-                    val.removeEventListener("focus", w.ttestwidget.setActiveInput);
+                    val.removeEventListener("click", w.sswidget.setActiveInput);
+                    val.removeEventListener("focus", w.sswidget.setActiveInput);
                     val.removeEventListener("keyup", debouncedFunc);
                 });
                 doc.body.removeChild(doc.getElementById("significance_widget"));
-                doc.removeEventListener("click", w.ttestwidget.getTextContent);
+                doc.removeEventListener("click", w.sswidget.getTextContent);
             }, false);
             /* handle hide/show widget */
-            doc.onkeydown = widget.toggleWidget;
+            doc.onkeydown = w.sswidget.toggleWidget;
             /* add active input value when clicking on a dom element */
-            doc.addEventListener("click", w.ttestwidget.getTextContent, false);
+            doc.addEventListener("click", w.sswidget.getTextContent, false);
             /* handle input fields click focus and keyup */
              // Add debouncer function for keyup event
-            let debouncedFunc = w.ttestwidget._debouncer(()=> {
-                if (w.ttestwidget.readyToCalculateSignificance()) {
-                    w.ttestwidget.manageResults();
+            let debouncedFunc = w.sswidget._debouncer(()=> {
+                if (w.sswidget.readyToCalculateSignificance()) {
+                    w.sswidget.manageResults();
                 }
             }, 500);
             doc.querySelectorAll("#significance_widget .box input").forEach(function(val, ind) {
-                val.addEventListener("click", w.ttestwidget.setActiveInput, false);
-                val.addEventListener("focus", w.ttestwidget.setActiveInput, false);
+                val.addEventListener("click", w.sswidget.setActiveInput, false);
+                val.addEventListener("focus", w.sswidget.setActiveInput, false);
                 val.addEventListener("keyup", debouncedFunc, false);
             });
             /* set widget position */
             doc.querySelectorAll("#significance_widget .wrapper .positions span").forEach(function(val, ind) {
                 let pos = val.getAttribute("data-pos");
-                val.addEventListener("click", w.ttestwidget.setWidgetPosition.bind(null,pos,event), false);
+                val.addEventListener("click", w.sswidget.setWidgetPosition.bind(null,pos,event), false);
             });
         },
         createwidget: function() {
             var stls = doc.createElement("style");
-            stls.textContent = widget.styles.all;
+            stls.textContent = w.sswidget.styles.all;
             doc.head.appendChild(stls);
             var content = '<div class="wrapper">'+
                 '<div class="positions"> <span data-pos="left">left</span> <span data-pos="center">center</span> <span data-pos="right">right</span>   </div>'+
-                '<span class="vwrap">v: ' + widget.version + '</span><span id="removewidget"> X </span>' +
+                '<span class="vwrap">v: ' + w.sswidget.version + '</span><span id="removewidget"> X </span>' +
                 '<div class="box_wrap">' +
                 '<div class="labels box">' +
                 '<label class="top_labels"></label>' +
@@ -442,13 +441,13 @@
             /* ============================================================================== */
             /* ============================================================================== */
             // log the version of the widget
-            w.ttestwidget.logger(w.ttestwidget.name+" version: "+w.ttestwidget.version);
+            w.sswidget.logger(w.sswidget.name+" version: "+w.sswidget.version);
         },
-        init: function() {
-            w.ttestwidget.createwidget();
-            w.ttestwidget.setDOMVariables();
-            w.ttestwidget.setDOMEventListeners();
+        init: ()=> {
+            w.sswidget.createwidget();
+            w.sswidget.setDOMVariables();
+            w.sswidget.setDOMEventListeners();
         }
     };
-    w.ttestwidget.init();
+    w.sswidget.init();
 })();
