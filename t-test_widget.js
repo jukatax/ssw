@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         T-test widget
 // @namespace    https://sc3.omniture.com
-// @version      0.4.5
+// @version      0.4.6
 // @description  Display t-test calculation box
 // @author       Yuliyan
 // @match        https://*.omniture.com/*
@@ -31,7 +31,7 @@
     const doc = document;
     w.sswidget = {
         name : "T-test widget",
-        version: '0.4.5',
+        version: '0.4.6',
         styles: {
             bckgrnd_clr: '#f4f7f1',
             main_clr: '#19405b',
@@ -403,9 +403,12 @@
             });
         },
         createwidget: function() {
-            var stls = doc.createElement("style");
-            stls.textContent = w.sswidget.styles.all;
-            doc.head.appendChild(stls);
+            if(!doc.getElementById("sswidget_styles")){
+                var stls = doc.createElement("style");
+                stls.id = "sswidget_styles";
+                stls.textContent = w.sswidget.styles.all;
+                doc.head.appendChild(stls);
+            }
             var content = '<div class="wrapper">'+
                 '<div class="positions"> <span data-pos="left">left</span> <span data-pos="center">center</span> <span data-pos="right">right</span>   </div>'+
                 '<span class="vwrap">v: ' + w.sswidget.version + '</span><span id="removewidget"> X </span>' +
