@@ -1,8 +1,11 @@
 # SSW - Statistical Significance Widget
 Creating this widget for Optimisation Managers to calculate statistical significance for their AB tests directly in Analytics with few clicks only.
+The widget was created to help them quickly calculate significance for metrics from AB tests in Adobe Omniture.
+Update the @include values to match the domain you wnat to use it if different from Adobe Omniture.
 
 ## How to install
 Create a new bookmark, go end edit it, paste the contents of bookmarklet.txt in the URL field
+copy nad paste the code from t-test_widget.js into a new script in Tampermonkey.
 
 ## How to use
 Go to the webpage where your analytics dashboards are. Open a dashboard with results of an AB test.
