@@ -5,7 +5,7 @@ Update the @include values to match the domain you wnat to use it if different f
 
 ## How to install
 Create a new bookmark, go end edit it, paste the contents of bookmarklet.txt in the URL field
-copy nad paste the code from t-test_widget.js into a new script in Tampermonkey.
+copy and paste the code from t-test_widget.js into a new script in Tampermonkey.
 
 ## How to use
 Go to the webpage where your analytics dashboards are. Open a dashboard with results of an AB test.
